@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 import gspread
-import pandas as pd
 
 
 class AbsGradesCalculator(ABC):
@@ -12,7 +11,7 @@ class AbsGradesCalculator(ABC):
         # Open the Google Sheets document by its ID
         sheet = self.client.open_by_key(sheet_id)
 
-        # get the first sheet page of the document
+        # get the sheet page of the document
         self.worksheet = sheet.get_worksheet(worksheet)
 
     @abstractmethod
@@ -23,56 +22,60 @@ class AbsGradesCalculator(ABC):
     def calculate_naf(self, average: float) -> int:
         pass
 
-    def compute_student_result(
+    def student_result(
         self,
-        row: pd.Series,
+        row: dict,
         exams_cols: list[str],
         absences_col: str,
+        number_of_classes: int,
         absences_treshold: float,
-    ) -> pd.Series:
-        if row[absences_col] > self.number_of_classes * absences_treshold:
-            row["Situação"] = "Reprovado por Falta"
-            row["Nota para Aprovação Final"] = 0
-        else:
+    ) -> list[str, int]:
+
+        result = ["Reprovado por Falta", 0]
+        if row[absences_col] <= number_of_classes * absences_treshold:
             average = 0
             for col in exams_cols:
                 average += row[col]
             average /= len(exams_cols)
 
-            row["Situação"] = self.grade_thresholds(average)
-            if row["Situação"] == "Exame Final":
-                row["Nota para Aprovação Final"] = self.calculate_naf(average)
-            else:
-                row["Nota para Aprovação Final"] = 0
+            result[0] = self.grade_thresholds(average)
+            if result[0] == "Exame Final":
+                result[1] = self.calculate_naf(average)
 
-        return row
+        return result
 
     def run(
         self,
         head_row: int = 3,
         exams_cols: list[str] = ["P1", "P2", "P3"],
+        num_classes_cell: str = "A2",
         absences_col: str = "Faltas",
         absences_treshold: float = 0.25,
+        output_col: str = "G",
         update_sheet: bool = False,
-    ) -> None | pd.DataFrame:
+    ) -> None | list[str, int]:
         # get data as a Dataframe
-        df = pd.DataFrame.from_dict(self.worksheet.get_all_records(head=head_row))
+        students = self.worksheet.get_all_records(head=head_row)
 
         # Get the number of classes lessoned
-        number_of_classes_cell = self.worksheet.cell(2, 1).value
-        self.number_of_classes = int(
-            number_of_classes_cell.replace("Total de aulas no semestre: ", "")
+        number_of_classes = self.worksheet.acell(num_classes_cell).value
+        number_of_classes = int(
+            number_of_classes.replace("Total de aulas no semestre: ", "")
         )
 
-        df = df.apply(
-            self.compute_student_result,
-            axis=1,
-            args=(exams_cols, absences_col, absences_treshold),
-        )
+        results = []
+        for student in students:
+            results.append(
+                self.student_result(
+                    student,
+                    exams_cols,
+                    absences_col,
+                    number_of_classes,
+                    absences_treshold,
+                )
+            )
 
         if update_sheet:
-            self.worksheet.update(
-                df[["Situação", "Nota para Aprovação Final"]].values.tolist(), "G4"
-            )
+            self.worksheet.update(results, f"{output_col}{head_row+1}")
         else:
-            return df
+            return results

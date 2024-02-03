@@ -15,4 +15,3 @@ class SWEGradesCalculator(AbsGradesCalculator):
     def calculate_naf(self, average: float) -> int:
         # REVIEW THAT LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!
         return math.ceil(100 - average)
-    
