@@ -47,12 +47,25 @@ class AbsGradesCalculator(ABC):
             raise e
 
     @abstractmethod
-    def student_status(self, average: float) -> str:
+    def calculate_grade(self, exams: list[int]) -> float:
+        """
+        Abstract method to calculate the overall grade based on exam scores.
+
+        Arguments:
+        - exams: List of exam scores of a student.
+
+        Returns:
+        - The calculated overall grade.
+        """
+        pass
+
+    @abstractmethod
+    def student_status(self, grade_result: float) -> str:
         """
         Abstract method to determine the grade status based on the average score.
 
         Arguments:
-        - average: The average score of a student.
+        - grade_result: The calculated score of a student.
 
         Returns:
         - A string indicating the grade status.
@@ -60,12 +73,12 @@ class AbsGradesCalculator(ABC):
         pass
 
     @abstractmethod
-    def calculate_naf(self, average: float) -> int:
+    def calculate_naf(self, grade_result: float) -> int:
         """
         Abstract method to calculate the score needed for a final exam.
 
         Arguments:
-        - average: The average score of a student.
+        - grade_result: The calculated score of a student.
 
         Returns:
         - An integer indicating the score needed for a final exam.
@@ -96,14 +109,11 @@ class AbsGradesCalculator(ABC):
         try:
             result = ["Reprovado por Falta", 0]
             if row[absences_col] <= number_of_classes * absences_treshold:
-                average = 0
-                for col in exams_cols:
-                    average += row[col]
-                average /= len(exams_cols)
+                grade_result = self.calculate_grade([row[exam] for exam in exams_cols])
 
-                result[0] = self.student_status(average)
+                result[0] = self.student_status(grade_result)
                 if result[0] == "Exame Final":
-                    result[1] = self.calculate_naf(average)
+                    result[1] = self.calculate_naf(grade_result)
 
             logging.info(
                 f"Student result calculated successfully. data: {row}, result: {result}"
@@ -139,8 +149,12 @@ class AbsGradesCalculator(ABC):
         - If update_sheet is False, returns a list of student results.
         - If update_sheet is True, updates the worksheet and returns None.
         """
-        # get data as a Dataframe
-        students = self.worksheet.get_all_records(head=head_row)
+        # get all records as a list of row values
+        try:
+            students = self.worksheet.get_all_records(head=head_row)
+        except Exception as e:
+            logging.error(f"Error retrieving students data from worksheet: {e}")
+            raise e
 
         # Get the number of classes lessoned
         try:

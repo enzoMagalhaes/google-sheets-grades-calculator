@@ -8,14 +8,18 @@ class SWEGradesCalculator(AbsGradesCalculator):
     Inherits from AbsGradesCalculator.
     """
 
-    def student_status(self, average: float) -> str:
-        if average < 50:
+    def calculate_grade(self, exams: list[int]) -> float:
+        # simple mean
+        return sum(exams) / len(exams)
+
+    def student_status(self, grade_result: float) -> str:
+        if grade_result < 50:
             return "Reprovado por Nota"
-        elif average < 70:
+        elif grade_result < 70:
             return "Exame Final"
         else:
             return "Aprovado"
 
-    def calculate_naf(self, average: float) -> int:
+    def calculate_naf(self, grade_result: float) -> int:
         # REVIEW THAT LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        return math.ceil(100 - average)
+        return math.ceil(100 - grade_result)
