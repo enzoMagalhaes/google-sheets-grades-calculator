@@ -3,3 +3,4 @@ env
 test.ipynb
 __pycache__
 todo
+*.log

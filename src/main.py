@@ -1,8 +1,8 @@
-from calculators.SWEGradesCalculator import SWEGradesCalculator
+from sheet_calculators import SWEGradesCalculator
 
 swe_grades_calculator = SWEGradesCalculator(
     service_account="./service_account.json",
-    sheet_id="1u5BN-kS30TozbcqTxAeEChoPZY-esVaK7S9XkirF0CQ",
+    sheet_id="1u5BN-kS30TozbcqTxAeEChoPZY-esVaK7S9XkirF0CQ",  # public sheet
 )
 
 swe_grades_calculator.run(

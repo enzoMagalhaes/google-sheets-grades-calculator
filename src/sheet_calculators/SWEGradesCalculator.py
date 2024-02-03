@@ -3,8 +3,12 @@ import math
 
 
 class SWEGradesCalculator(AbsGradesCalculator):
+    """
+    Class with custom logic for calculating grades in Software Engineering course.
+    Inherits from AbsGradesCalculator.
+    """
 
-    def grade_thresholds(self, average: float) -> str:
+    def student_status(self, average: float) -> str:
         if average < 50:
             return "Reprovado por Nota"
         elif average < 70:
