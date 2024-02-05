@@ -1,94 +1,61 @@
-# OBJETIVO 
+## Calculadora de Notas
 
-Parte integrante do processo seletivo da Tunts.Rocks, o desafio de programação tem como objetivo  principal a avaliação das habilidades de programação do candidato. Levando em conta não  apenas o êxito de implementação da funcionalidade desejada, mas também uma análise da  solução de forma estrutural, semântica e performática. 
+Este projeto consiste em uma calculadora de notas desenvolvida para auxiliar no cálculo e gerenciamento de notas de alunos em diferentes cursos utilizando o Google Sheets. Ele permite calcular e gerenciar notas com base em resultados de exames e registros de frequência.
 
-# CRITÉRIOS DE AVALIAÇÃO 
+### Funcionalidades
 
-• Bom entendimento do problema a ser resolvido; 
-• Êxito na implementação da funcionalidade; 
-• Estrutura do código fonte; 
-• Documentação e utilização de boas práticas; 
-• Utilização de ferramentas de desenvolvimento básicas. 
+- Calcula as notas finais dos alunos com base nas notas dos exames.
+- Determina o status da nota (Aprovado, Exame Final, Reprovado) com base na nota calculada.
+- Calcula a nota necessária para um exame final, se aplicável.
+- Suporta personalização para diferentes critérios de avaliação.
 
-# DESAFIO 
+### Configuração
 
-Criar uma aplicação em uma linguagem de programação de sua preferência. A aplicação deve ser capaz de ler  uma planilha do google sheets, buscar as informações necessárias, calcular e escrever o  resultado na planilha. 
+1. Clone o repositório:
+   ```bash
+   git clone https://github.com/enzoMagalhaes/google-sheets-grades-calculator
+2. Instale as dependências necessárias:
+   ```bash
+    pip install -r requirements.txt
 
+3. Certifique-se de ter um arquivo service account JSON da Google Cloud com permissões adequadas. Mais informações para a criação de uma service account [aqui](https://docs.gspread.org/en/latest/oauth2.html) e [aqui](https://owaisqureshi.medium.com/access-google-sheets-api-in-python-using-service-account-3a0c6d89d5fc).
 
+4. Atualize a configuração no arquivo `calculate_swe_grades.py`:
+    * `service_account`: Caminho para o seu arquivo service account JSON da Google Cloud.
+    * `sheet_id`: ID do documento Google Sheets contendo os dados dos alunos.
 
-Primeiro passo: crie uma cópia da planilha para você: 
+### Como Rodar
 
-Acesse a planilha: https://docs.google.com/spreadsheets/d/1XvWJcRLj2WAeXO3ULQ_GxGm9---3SZkjMbGcXMJtt70/edit#gid=0
+1. Instancie a classe SWEGradesCalculator com os parâmetros necessários:
+   ```python
+    from sheet_calculators import SWEGradesCalculator
 
-Use a função de fazer cópia:
+    swe_grades_calculator = SWEGradesCalculator(
+        service_account="./service_account.json",
+        sheet_id="SEU_ID_DE_PLANILHA",
+    )
 
-Modifique o nome da planilha para Engenharia de Software – Desafio [SEU NOME]:
+2. Execute o programa para calcular as notas:
+   ```python
+    swe_grades_calculator.run(
+        head_row=3,
+        exams_cols=["P1", "P2", "P3"],
+        num_classes_cell="A2",
+        absences_col="Faltas",
+        absences_treshold=0.25,
+        output_col="G",
+        update_sheet=True,
+    )
 
-Depois deixe a planilha pública para edição para qualquer um com acesso ao link:
+#### Configuração
 
-Utilize a planilha recém criada (cópia) para realizar o teste. 
+* `head_row`: Número da linha do cabeçalho da tabela.
+* `exams_cols`: Lista de colunas contendo as notas dos exames.
+* `num_classes_cell`: Célula contendo o número total de aulas.
+* `absences_col`: Coluna contendo o número de faltas.
+* `absences_treshold`: Limiar para considerar um aluno ausente.
+* `output_col`: Coluna onde os resultados serão escritos.
+* `update_sheet`: Booleano indicando se a planilha deve ser atualizada com os resultados.
 
-
-
-REGRAS: 
-
-Calcular a situação de cada aluno baseado na média das 3 provas (P1, P2 e P3), conforme a  tabela: 
-
-
-
-Média (m) Situação:
-
-m<5  - Reprovado por Nota
-5<=m<7  - Exame Final
-m>=7  - Aprovado
-
-
-
-Caso o número de faltas ultrapasse 25% do número total de aulas o aluno terá a situação  "Reprovado por Falta", independente da média.  Caso a situação seja "Exame Final" é necessário calcular a "Nota para Aprovação Final"(naf) de  cada aluno de acordo com seguinte fórmula: 
-
-
-
-(m + naf)/2 >= 5 
-
-m + naf = 10 
-
-
-
-Caso a situação do aluno seja diferente de "Exame Final", preencha o campo "Nota para  Aprovação Final" com 0. 
-
-
-
-Arredondar o resultado para o próximo número inteiro (aumentar) caso necessário. Utilizar linhas de logs para acompanhamento das atividades da aplicação. 
-
-
-
-Os textos do código fonte (atributos, classes, funções, comentários e afins) devem ser escritos  em inglês, salvo os identificadores e textos pré-definidos nesse desafio. 
-
-
-
-O candidato deve especificar os comandos que devem ser utilizados para execução da  aplicação. Exemplo de uma aplicação node.js: 
-
-1. npm install 
-
-2. npm start 
-
-
-
-O candidato deve publicar o código fonte em um repositório git de sua preferência (exemplo:  github, gitlab, bitbucket e etc). 
-
-
-
-ENTREGÁVEIS 
-
-Link público do repositório git escolhido; 
-Comandos para rodar a aplicação; 
-Link público da planilha copiada. 
-
-
-REFERÊNCIA 
-
-Documentação da Google Sheets: https://developers.google.com/sheets/api/guides/concepts
-
-
-Certifique-se de reservar tempo suficiente para fazer o teste.
-Caso você saia do teste sem finalizá-lo, o teste será considerado como concluído e você não poderá fazer novamente.
+# Como criar a calculadora para o seu próprio curso
+Para personalizar a lógica de cálculo de notas para seu curso específico, você pode estender a classe AbsGradesCalculator e implementar os métodos necessários (calculate_grade, student_status, calculate_naf) de acordo com seus critérios de avaliação (veja `ExampleGradesCalculator.py`).

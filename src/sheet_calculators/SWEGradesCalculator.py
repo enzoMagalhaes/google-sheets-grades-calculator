@@ -8,6 +8,8 @@ class SWEGradesCalculator(AbsGradesCalculator):
     Inherits from AbsGradesCalculator.
     """
 
+    absences_treshold = 0.25
+
     def calculate_grade(self, exams: list[int]) -> float:
         # simple mean
         return sum(exams) / len(exams)
@@ -21,5 +23,4 @@ class SWEGradesCalculator(AbsGradesCalculator):
             return "Aprovado"
 
     def calculate_naf(self, grade_result: float) -> int:
-        # REVIEW THAT LATER!!!!!!!!!!!!!!!!!!!!!!!!!!!
         return math.ceil(100 - grade_result)

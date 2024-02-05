@@ -10,6 +10,9 @@ class AbsGradesCalculator(ABC):
 
     DEFAULT_NUMBER_OF_CLASSES = 60
 
+    # Threshold for considering a student absent.
+    absences_treshold = 0.25
+
     def __init__(self, service_account: str, sheet_id: str, worksheet: int = 0) -> None:
         """
         Initialize the grades calculator.
@@ -91,7 +94,6 @@ class AbsGradesCalculator(ABC):
         exams_cols: list[str],
         absences_col: str,
         number_of_classes: int,
-        absences_treshold: float,
     ) -> list[str, int]:
         """
         Calculate the result of a student.
@@ -101,14 +103,13 @@ class AbsGradesCalculator(ABC):
         - exams_cols: List of columns containing exam scores.
         - absences_col: Column containing the number of absences.
         - number_of_classes: Total number of classes in the semester.
-        - absences_treshold: Threshold for considering a student absent.
 
         Returns:
         - A list containing the student's grade status and the score needed for a final exam.
         """
         try:
             result = ["Reprovado por Falta", 0]
-            if row[absences_col] <= number_of_classes * absences_treshold:
+            if row[absences_col] <= number_of_classes * self.absences_treshold:
                 grade_result = self.calculate_grade([row[exam] for exam in exams_cols])
 
                 result[0] = self.student_status(grade_result)
@@ -129,7 +130,6 @@ class AbsGradesCalculator(ABC):
         exams_cols: list[str] = ["P1", "P2", "P3"],
         num_classes_cell: str = "A2",
         absences_col: str = "Faltas",
-        absences_treshold: float = 0.25,
         output_col: str = "G",
         update_sheet: bool = False,
     ) -> None | list[str, int]:
@@ -141,7 +141,6 @@ class AbsGradesCalculator(ABC):
         - exams_cols: List of columns containing exam scores.
         - num_classes_cell: Cell containing the total number of classes.
         - absences_col: Column containing the number of absences.
-        - absences_treshold: Threshold for considering a student absent.
         - output_col: Column where the results will be written (default is "G").
         - update_sheet: Boolean indicating whether to update the worksheet with results.
 
@@ -175,11 +174,7 @@ class AbsGradesCalculator(ABC):
         for student in students:
             results.append(
                 self.student_result(
-                    student,
-                    exams_cols,
-                    absences_col,
-                    number_of_classes,
-                    absences_treshold,
+                    student, exams_cols, absences_col, number_of_classes
                 )
             )
 
