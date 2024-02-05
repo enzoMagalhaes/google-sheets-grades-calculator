@@ -42,7 +42,6 @@ Este projeto consiste em uma calculadora de notas desenvolvida para auxiliar no 
         exams_cols=["P1", "P2", "P3"],
         num_classes_cell="A2",
         absences_col="Faltas",
-        absences_treshold=0.25,
         output_col="G",
         update_sheet=True,
     )
