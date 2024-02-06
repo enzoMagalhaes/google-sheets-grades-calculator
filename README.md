@@ -1,15 +1,15 @@
-## Calculadora de Notas
+# Calculadora de Notas
 
 Este projeto consiste em uma calculadora de notas desenvolvida para auxiliar no cálculo e gerenciamento de notas de alunos em diferentes cursos utilizando o Google Sheets. Ele permite calcular e gerenciar notas com base em resultados de exames e registros de frequência.
 
-### Funcionalidades
+## Funcionalidades
 
 - Calcula as notas finais dos alunos com base nas notas dos exames.
 - Determina o status da nota (Aprovado, Exame Final, Reprovado) com base na nota calculada.
 - Calcula a nota necessária para um exame final, se aplicável.
 - Suporta personalização para diferentes critérios de avaliação.
 
-### Configuração
+## Configuração
 
 1. Clone o repositório:
    ```bash
@@ -17,14 +17,13 @@ Este projeto consiste em uma calculadora de notas desenvolvida para auxiliar no 
 2. Instale as dependências necessárias:
    ```bash
     pip install -r requirements.txt
-
 3. Certifique-se de ter um arquivo service account JSON da Google Cloud com permissões adequadas. Mais informações para a criação de uma service account [aqui](https://docs.gspread.org/en/latest/oauth2.html) e [aqui](https://owaisqureshi.medium.com/access-google-sheets-api-in-python-using-service-account-3a0c6d89d5fc).
 
 4. Atualize a configuração no arquivo `calculate_swe_grades.py`:
     * `service_account`: Caminho para o seu arquivo service account JSON da Google Cloud.
     * `sheet_id`: ID do documento Google Sheets contendo os dados dos alunos.
 
-### Como Rodar
+## Como Rodar
 
 1. Instancie a classe SWEGradesCalculator com os parâmetros necessários:
    ```python
@@ -34,7 +33,6 @@ Este projeto consiste em uma calculadora de notas desenvolvida para auxiliar no 
         service_account="./service_account.json",
         sheet_id="SEU_ID_DE_PLANILHA",
     )
-
 2. Execute o programa para calcular as notas:
    ```python
     swe_grades_calculator.run(
@@ -45,8 +43,7 @@ Este projeto consiste em uma calculadora de notas desenvolvida para auxiliar no 
         output_col="G",
         update_sheet=True,
     )
-
-#### Configuração
+### Configuração
 
 * `head_row`: Número da linha do cabeçalho da tabela.
 * `exams_cols`: Lista de colunas contendo as notas dos exames.
@@ -56,5 +53,13 @@ Este projeto consiste em uma calculadora de notas desenvolvida para auxiliar no 
 * `output_col`: Coluna onde os resultados serão escritos.
 * `update_sheet`: Booleano indicando se a planilha deve ser atualizada com os resultados.
 
-# Como criar a calculadora para o seu próprio curso
+Para executar o programa e calcular as notas da disciplina de Engenharia de Software, na raiz do projeto, execute:
+
+    python3 src/calculate_swe_grades.py
+
+Os resultados das notas serão inseridos diretamente na [planilha](https://docs.google.com/spreadsheets/d/1u5BN-kS30TozbcqTxAeEChoPZY-esVaK7S9XkirF0CQ).
+
+Após a execução do programa, os logs podem ser encontrados na raiz do projeto em um arquivo chamado `grades_calculator.log`.
+
+## Como criar a calculadora para o seu próprio curso
 Para personalizar a lógica de cálculo de notas para seu curso específico, você pode estender a classe AbsGradesCalculator e implementar os métodos necessários (calculate_grade, student_status, calculate_naf) de acordo com seus critérios de avaliação (veja `ExampleGradesCalculator.py`).
